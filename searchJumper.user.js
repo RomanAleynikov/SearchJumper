@@ -5,7 +5,7 @@
 // @name:ja      SearchJumper
 // @name:ru      SearchJumper
 // @namespace    hoothin
-// @version      1.7.92
+// @version      1.8.8
 // @description  Conduct searches for selected text/image effortlessly. Navigate to any search engine(Google/Bing/Custom) swiftly.
 // @description:zh-CN  万能聚合搜索，一键切换任何搜索引擎(百度/必应/谷歌等)，支持划词右键搜索、页内关键词查找与高亮、可视化操作模拟、高级自定义等
 // @description:zh-TW  一鍵切換任意搜尋引擎，支援劃詞右鍵搜尋、頁內關鍵詞查找與高亮、可視化操作模擬、高級自定義等
@@ -256,6 +256,8 @@
                         submitCrawl: '☑️完成操作',
                         inputOutput: '在元素<span title="#t1#" class="element">#t1#</span>内输入<span title="#t2#">#t2#</span>',
                         clickOutput: '点击元素<span title="#t#" class="element">#t#</span>',
+                        dblclickOutput: '双击元素<span title="#t#" class="element">#t#</span>',
+                        rclickOutput: '右击元素<span title="#t#" class="element">#t#</span>',
                         copyOutput: '复制元素<span title="#t#" class="element">#t#</span>',
                         sleepOutput: '休眠<span title="#t#">#t#</span>毫秒',
                         inputNewValue: '请输入新值',
@@ -380,6 +382,8 @@
                         submitCrawl: '☑️完成操作',
                         inputOutput: '在元素<span title="#t1#" class="element">#t1#</span>內輸入<span title="#t2#">#t2#</span>',
                         clickOutput: '點擊元素<span title="#t#" class="element">#t#</span>',
+                        dblclickOutput: '雙擊元素<span title="#t#" class="element">#t#</span>',
+                        rclickOutput: '右擊元素<span title="#t#" class="element">#t#</span>',
                         copyOutput: '複製元素<span title="#t#" class="element">#t#</span>',
                         sleepOutput: '休眠<span title="#t#">#t#</span>毫秒',
                         inputNewValue: '請輸入新值',
@@ -501,7 +505,9 @@
                         copyAction: '📄要素のコピー',
                         submitCrawl: '☑️操作を完了',
                         inputOutput: '要素 <span title="#t1#" class="element">#t1#</span> 内に <span title="#t2#">#t2#</span> を入力します',
-                        clickOutput: 'クリック要素<span title="#t#" class="element">#t#</span>',
+                        clickOutput: 'クリック<span title="#t#" class="element">#t#</span>',
+                        dblclickOutput: 'ダブルクリック<span title="#t#" class="element">#t#</span>',
+                        rclickOutput: '右クリック<span title="#t#" class="element">#t#</span>',
                         copyOutput: 'コピー要素<span title="#t#" class="element">#t#</span>',
                         sleepOutput: 'スリープ<span title="#t#">#t#</span> ミリ秒',
                         inputNewValue: '新しい値を入力してください',
@@ -624,6 +630,8 @@
                         submitCrawl: '☑️Завешить действие',
                         inputOutput: 'Ввод <span title="#t2#">#t2#</span> в элемент <span title="#t1#" class="element">#t1#</span>',
                         clickOutput: 'Клик по элементу <span title="#t#" class="element">#t#</span>',
+                        dblclickOutput: 'Двойной клик <span title="#t#" class="element">#t#</span>',
+                        rclickOutput: 'щелкните ПКМ <span title="#t#" class="element">#t#</span>',
                         copyOutput: 'Копировать элемент <span title="#t#" class="element">#t#</span>',
                         sleepOutput: 'Ждать <span title="#t#">#t#</span> миллисекунд',
                         inputNewValue: 'Введите новое значение',
@@ -739,6 +747,8 @@
                         submitCrawl: '☑️Complete operation',
                         inputOutput: 'Input <span title="#t2#">#t2#</span> in the element <span title="#t1#" class="element">#t1#</span>',
                         clickOutput: 'Click on element <span title="#t#" class="element">#t#</span>',
+                        dblclickOutput: 'Double click <span title="#t#" class="element">#t#</span>',
+                        rclickOutput: 'Right click <span title="#t#" class="element">#t#</span>',
                         copyOutput: 'Copy element <span title="#t#" class="element">#t#</span>',
                         sleepOutput: 'Sleep for <span title="#t#">#t#</span> milliseconds',
                         inputNewValue: 'Please enter a new value',
@@ -895,8 +905,6 @@
             cssStr = cssStr.replace(/\n\s*/g, "");
             if (typeof GM_addStyle != 'undefined') {
                 return GM_addStyle(cssStr);
-            } else if (typeof GM != 'undefined' && typeof GM.addStyle != 'undefined') {
-                return GM.addStyle(cssStr);
             } else {
                 let styleEle = document.createElement("style");
                 styleEle.innerHTML = createHTML(cssStr);
@@ -2078,11 +2086,13 @@
                  #search-jumper.funcKeyCall>.search-jumper-searchBar>.search-jumper-type>.sitelist {
                      display: none;
                  }
-                 ${searchData.prefConfig.minPopup ? `
-                 #search-jumper.funcKeyCall>.search-jumper-searchBar>.search-jumper-type>a.search-jumper-btn {
+                 ${searchData.prefConfig.minPopup && !searchData.prefConfig.hideTileType ? `
+                 #search-jumper.funcKeyCall>.search-jumper-searchBar>.search-jumper-type>a.search-jumper-btn,
+                 #search-jumper.funcKeyCall>.search-jumper-searchBar>.search-jumper-type>.searchJumperExpand {
                      display: none;
                  }
-                 #search-jumper.funcKeyCall>.search-jumper-searchBar>.search-jumper-type:hover>a.search-jumper-btn {
+                 #search-jumper.funcKeyCall>.search-jumper-searchBar>.search-jumper-type:hover>a.search-jumper-btn,
+                 #search-jumper.funcKeyCall>.search-jumper-searchBar>.search-jumper-type:hover>.searchJumperExpand {
                      display: grid;
                  }
                  ` : ''}
@@ -2589,7 +2599,7 @@
                      color: #ffffff!important;
                      font-family: Arial, sans-serif;
                      font-weight: 500;
-                     font-size: ${14 * this.scale}px;
+                     font-size: ${13 * this.scale}px;
                      line-height: ${32 * this.scale}px;
                      width: ${32 * this.scale}px;
                      height: ${32 * this.scale}px;
@@ -2644,7 +2654,6 @@
                  .search-jumper-type img {
                      width: ${32 * this.scale}px;
                      height: ${32 * this.scale}px;
-                     border-radius: ${20 * this.scale}px;
                      margin-top: unset;
                  }
                  #search-jumper.funcKeyCall .search-jumper-type img {
@@ -3549,6 +3558,8 @@
                 this.dayInAll = dayInAll;
 
                 alllist.addEventListener(getSupportWheelEventName(), e => {
+                    self.tips.style.display = "none";
+                    clearTimeout(self.requestShowTipsTimer);
                     if (e.target != alllist && e.target != showallBg && e.target != sitelistBox) return;
                     if (alllist.classList.contains("new-mode")) return;
                     var deltaX, deltaY;
@@ -3650,6 +3661,11 @@
                 tips.className = "search-jumper-tips";
                 tips.style.opacity = 0;
                 searchBarCon.appendChild(tips);
+                tips.addEventListener('mouseenter', e => {
+                    if (self.hideTimeout) {
+                        clearTimeout(self.hideTimeout);
+                    }
+                }, false);
                 this.tips = tips;
 
                 //this.appendBar();
@@ -4264,6 +4280,11 @@
                                 customInputFrame.parentNode.removeChild(customInputFrame);
                             }
                             resolve("");
+                        });
+                        customInputFrame.addEventListener("keydown", e => {
+                            if (e.keyCode == 13) {
+                                customSubmit.click();
+                            }
                         });
                         let customGroup = this.customInputFrame.querySelector("#customGroup");
                         this.customGroup = customGroup;
@@ -5820,6 +5841,9 @@
                 });*/
                 this.touched = false;
                 this.initPos();
+                if (this.funcKeyCall) {
+                    this.setFuncKeyCall(false);
+                }
                 if (!searchData.prefConfig.disableAutoOpen && !searchData.prefConfig.disableTypeOpen) {
                     let firstType = this.bar.querySelector('.search-jumper-type:nth-child(1)>span');
                     if (firstType && !firstType.classList.contains("search-jumper-open")) {
@@ -5831,7 +5855,7 @@
                         }
                     }
                 }
-                this.bar.style.display = ''
+                this.bar.style.display = '';
             }
 
             toggleShowAll() {
@@ -6064,15 +6088,7 @@
                 picker.close();
                 document.removeEventListener("mouseup", this.checkSelHandler);
                 this.setFuncKeyCall(false);
-                let openType = this.bar.querySelector('.search-jumper-type.search-jumper-open>span');
-                if (openType) {
-                    if (openType.onmousedown) {
-                        openType.onmousedown();
-                    } else {
-                        let mouseEvent = new PointerEvent("mousedown");
-                        openType.dispatchEvent(mouseEvent);
-                    }
-                }
+                this.closeOpenType();
             }
 
             removeBar() {
@@ -6084,15 +6100,13 @@
             async testCSP() {
                 let self = this;
                 let cspHandler = e => {
+                    if (!e.violatedDirective || e.violatedDirective.indexOf("style-src") == -1) return;
                     disabled = true;
-                    self.shadowContainer.parentNode.removeChild(self.shadowContainer);
-                    self.shadowContainer = document.createElement("div");
-                    self.shadowContainer.setAttribute('contenteditable', 'false');
                 };
                 window.addEventListener('securitypolicyviolation', cspHandler);
                 let testStyleEle = _GM_addStyle(`html {color: #000;}`);
                 this.addToShadow(testStyleEle);
-                await sleep(1);
+                await sleep(0);
                 window.removeEventListener('securitypolicyviolation', cspHandler);
                 testStyleEle.parentNode && testStyleEle.parentNode.removeChild(testStyleEle);
             }
@@ -6143,31 +6157,51 @@
                     if (!disabled) this.addToShadow(mainStyleEle);
                 }
                 if (this.addToShadow(this.con)) {
-                    setTimeout(() => {
-                        if (!isAllPage && this.con.parentNode) {
-                            if (getComputedStyle(this.con).zIndex != "2147483647") {
-                                this.removeBar();
-                                if (disabled) {
-                                    debug(i18n("cspDisabled"));
+                    let self = this;
+                    let checkZIndex = () => {
+                        setTimeout(() => {
+                            if (self.shadowContainer && !self.shadowContainer.parentNode) {
+                                if (shareEngines) {
+                                    document.body.appendChild(self.shadowContainer);
                                 } else {
-                                    disabled = true;
-                                    mainStyleEle = _GM_addStyle(cssText);
-                                    this.shadowContainer.parentNode.removeChild(this.shadowContainer);
-                                    this.shadowContainer = document.createElement("div");
-                                    this.shadowContainer.setAttribute('contenteditable', 'false');
-                                    document.documentElement.appendChild(this.shadowContainer);
-                                    this.appendBar();
+                                    document.documentElement.appendChild(self.shadowContainer);
+                                }
+                                checkZIndex();
+                                return;
+                            }
+                            if (!isAllPage && self.con.parentNode) {
+                                if (getComputedStyle(self.con).zIndex != "2147483647") {
+                                    this.removeBar();
+                                    if (disabled) {
+                                        debug(i18n("cspDisabled"));
+                                    } else {
+                                        disabled = true;
+                                        mainStyleEle = _GM_addStyle(cssText);
+                                        self.shadowContainer.parentNode.removeChild(self.shadowContainer);
+                                        self.shadowContainer = document.createElement("div");
+                                        self.shadowContainer.setAttribute('contenteditable', 'false');
+                                        document.documentElement.appendChild(self.shadowContainer);
+                                        self.appendBar();
+                                    }
                                 }
                             }
-                        }
-                    }, 1);
+                        }, 100);
+                    };
+                    checkZIndex();
                 }
             }
 
             async searchBySiteName(siteName, e, selfTab) {
                 if (!e) e = {};
+                if (e && e.type === 'drop') {
+                    this.closeShowAll();
+                }
                 for (let [siteBtn, siteData] of this.allSiteBtns) {
                     if (siteBtn.dataset.name == siteName) {
+                        if (siteBtn.dataset.showTips) {
+                            siteBtn.dispatchEvent(new CustomEvent('showTips'));
+                            return;
+                        }
                         await this.siteSetUrl(siteBtn, {button: e.button, altKey: e.altKey, ctrlKey: e.ctrlKey, shiftKey: e.shiftKey, metaKey: e.metaKey});
                         let isPage = /^(https?|ftp):/.test(siteBtn.href);
                         if (isPage) {
@@ -7036,33 +7070,23 @@
                                     firstType.dispatchEvent(mouseEvent);
                                 }
                             }
-                            self.bar.style.display = 'none';
-                            setTimeout(() => {
-                                self.bar.style.display = '';
-                            }, 250);
                         } else {
                             self.bar.style.display = 'none';
                         }
                     }
                     if (searchData.prefConfig.autoClose) {
-                        let openType = self.bar.querySelector('.search-jumper-type.search-jumper-open>span');
-                        if (openType) {
-                            if (openType.onmousedown) {
-                                openType.onmousedown();
-                            } else {
-                                let mouseEvent = new PointerEvent("mousedown");
-                                openType.dispatchEvent(mouseEvent);
-                            }
-                        }
+                        self.closeOpenType();
                     }
-                    this.hideTimeout = null;
+                    self.hideTimeout = null;
                 };
                 if (this.hideTimeout) {
                     clearTimeout(this.hideTimeout);
                 }
-                let delayTime = delay || (this.funcKeyCall ? 500 : (searchData.prefConfig.autoDelay || 1000));
+                let delayTime = typeof delay === 'undefined' ? (this.funcKeyCall ? 500 : (searchData.prefConfig.autoDelay || 1000)) : delay;
 
-                this.hideTimeout = setTimeout(hideHandler, delayTime);
+                if (delayTime) {
+                    this.hideTimeout = setTimeout(hideHandler, delayTime);
+                } else hideHandler();
                 if (this.preList) {
                     this.preList.style.visibility = "hidden";
                     this.listArrow.style.cssText = "";
@@ -7603,6 +7627,11 @@
 
             initHistorySites() {
                 this.historySiteBtns = [];
+                this.txtHistorySiteBtns = [];
+                this.imgHistorySiteBtns = [];
+                this.linkHistorySiteBtns = [];
+                this.videoHistorySiteBtns = [];
+                this.audioHistorySiteBtns = [];
                 let self = this;
                 historySites.forEach(async n => {
                     for (let siteConfig of searchData.sitesConfig) {
@@ -7614,6 +7643,21 @@
                                 let siteBtn = await self.createSiteBtn((searchData.prefConfig.noIcons ? "0" : site.icon), site, true, isBookmark, siteConfig);
                                 siteBtn.classList.add("historySite");
                                 self.historySiteBtns.push(siteBtn);
+                                if (siteConfig.selectTxt) {
+                                    self.txtHistorySiteBtns.push(siteBtn);
+                                }
+                                if (siteConfig.selectImg) {
+                                    self.imgHistorySiteBtns.push(siteBtn);
+                                }
+                                if (siteConfig.selectLink || siteConfig.selectPage) {
+                                    self.linkHistorySiteBtns.push(siteBtn);
+                                }
+                                if (siteConfig.selectVideo) {
+                                    self.videoHistorySiteBtns.push(siteBtn);
+                                }
+                                if (siteConfig.selectAudio) {
+                                    self.audioHistorySiteBtns.push(siteBtn);
+                                }
                                 found = true;
                                 break;
                             }
@@ -7644,8 +7688,20 @@
                         }
                     }
                 }
-                for (let i = 0; i < this.historySiteBtns.length; i++) {
-                    let btn = this.historySiteBtns[i];
+                let historySiteBtns = this.historySiteBtns;
+                if (typeEle.classList.contains("search-jumper-needInPage")) {
+                    historySiteBtns = this.txtHistorySiteBtns;
+                } else if (typeEle.classList.contains("search-jumper-targetImg")) {
+                    historySiteBtns = this.imgHistorySiteBtns;
+                } else if (typeEle.classList.contains("search-jumper-targetAudio")) {
+                    historySiteBtns = this.audioHistorySiteBtns;
+                } else if (typeEle.classList.contains("search-jumper-targetVideo")) {
+                    historySiteBtns = this.videoHistorySiteBtns;
+                } else if (typeEle.classList.contains("search-jumper-targetLink") || typeEle.classList.contains("search-jumper-targetPage")) {
+                    historySiteBtns = this.linkHistorySiteBtns;
+                }
+                for (let i = 0; i < historySiteBtns.length; i++) {
+                    let btn = historySiteBtns[i];
                     if (btn.style.display == "none") continue;
                     let siteImg = btn.querySelector('img');
                     if (siteImg && siteImg.dataset.src) {
@@ -7713,12 +7769,19 @@
                 if (siteEle.href) a.href = siteEle.href;
                 a.style.display = siteEle.style.display;
                 a.addEventListener('mousedown', async e => {
-                    await self.siteSetUrl(siteEle, {button: e.button, altKey: e.altKey, ctrlKey: e.ctrlKey, shiftKey: e.shiftKey, metaKey: e.metaKey});
-                    if (siteEle.href) a.href = siteEle.href;
-                    a.setAttribute("target", siteEle.target);
+                    if (siteEle.dataset.showTips) {
+                        if (self.con.classList.contains("search-jumper-showall")) {
+                            targetElement = a.parentNode;
+                        } else self.waitForHide(0);
+                        siteEle.dispatchEvent(new CustomEvent('showTips'));
+                    } else {
+                        await self.siteSetUrl(siteEle, {button: e.button, altKey: e.altKey, ctrlKey: e.ctrlKey, shiftKey: e.shiftKey, metaKey: e.metaKey});
+                        if (siteEle.href) a.href = siteEle.href;
+                        a.setAttribute("target", siteEle.target);
+                    }
                     if (!a.onclick) {
                         a.onclick = e => {
-                            siteEle.click();
+                            if (!siteEle.dataset.showTips) siteEle.click();
                             e.stopPropagation();
                             e.preventDefault();
                             return false;
@@ -7783,6 +7846,9 @@
                             img.style.width = "";
                             img.style.height = "";
                             img.style.display = "";
+                        };
+                        img.onerror = e => {
+                            img.src = noImgBase64;
                         };
                         img.style.width = "1px";
                         img.style.height = "1px";
@@ -7923,6 +7989,9 @@
                 let viewWidth = window.innerWidth || document.documentElement.clientWidth;
                 let viewHeight = window.innerHeight || document.documentElement.clientHeight;
                 if (showall) {
+                    let clientRect = clingEle.getBoundingClientRect();
+                    clientX = clientRect.x + ew / 2;
+                    clientY = clientRect.y + eh / 2;
                     clientX -= target.scrollWidth / 2 - this.con.scrollLeft;
                     clientY += this.con.scrollTop;
                     if (clientY > viewHeight / 2) clientY -= (target.scrollHeight + eh / 2 + 10);
@@ -8004,6 +8073,7 @@
 
             tipsPos(ele, type) {
                 this.tips.innerHTML = createHTML(type);
+                this.tips.style.pointerEvents = "";
                 this.tips.style.display = "";
                 this.tips.style.opacity = 1;
                 this.clingPos(ele, this.tips);
@@ -8123,7 +8193,7 @@
                     }
                 };
                 if (searchData.prefConfig.shortcut && data.shortcut && !ele.classList.contains("notmatch")) {
-                    let shortcurStr = data.shortcut.replace('Key', '').toUpperCase();
+                    let shortcurStr = data.shortcut.replace('Key', '').replace('Digit', '').toUpperCase();
                     if (shortcurStr.length == 1) ele.dataset.title += ` (${shortcurStr})`;
                     document.addEventListener('keydown', e => {
                         if (e.target.id === "searchJumperInput") return;
@@ -8143,6 +8213,7 @@
                         }
                     });
                 }
+                let shownSitesNum = 0;
                 let baseSize = this.scale * 40;
                 let typeAction = e => {
                     if (e) {
@@ -8184,7 +8255,7 @@
                         }
                         let href = targetElement && (targetElement.href || targetElement.src);
                         let keyWords = getKeywords();
-                        let shownSitesNum = 0;
+                        shownSitesNum = 0;
                         siteEles.forEach((se, i) => {
                             let data = sites[i];
                             /*if (data.match && data.hideNotMatch) {
@@ -8295,7 +8366,7 @@
                     if (!searchData.prefConfig.disableTypeOpen) {
                         setTimeout(() => {
                             self.checkScroll();
-                        }, 500);
+                        }, searchData.prefConfig.typeOpenTime);
                     }
                 };
                 let draged = false, initMousePos, initTilePos;
@@ -8373,13 +8444,14 @@
                 let tooLoog = sites && sites.length > 200;
                 ele.dataset.id = self.siteIndex;
                 self.stopInput = false;
-                let notMatchSites = [];
                 async function createItem(site, i) {
                     if (!site.name) return;
                     let siteEle = await self.createSiteBtn((tooLoog || searchData.prefConfig.noIcons ? "0" : site.icon), site, openInNewTab, isBookmark, data);
                     if (!siteEle) {
-                        notMatchSites.push(i);
                         return;
+                    }
+                    if (!siteEle.classList.contains("notmatch")) {
+                        shownSitesNum++;
                     }
                     siteEle.dataset.type = type;
                     siteEle.dataset.id = self.siteIndex;
@@ -8439,9 +8511,6 @@
                     if (changed) storage.setItem("sortSiteNames", sortSiteNames);
                 }
 
-
-                sites = sites.filter((s, i) => !notMatchSites.includes(i));
-                notMatchSites = null;
                 siteEles.forEach(siteEle => {
                     if (siteEle.classList.contains("notmatch")) {
                         ele.appendChild(siteEle);
@@ -8456,7 +8525,7 @@
                     }
                     if (!searchData.prefConfig.disableAutoOpen && !searchData.prefConfig.disableTypeOpen) {
                         ele.classList.add("search-jumper-open");
-                        if (sites.length > (searchData.prefConfig.expandTypeLength || 12) && !searchData.prefConfig.expandType) {
+                        if (shownSitesNum > (searchData.prefConfig.expandTypeLength || 12) && !searchData.prefConfig.expandType) {
                             ele.classList.add("not-expand");
                             ele.appendChild(self.searchJumperExpand);
                         }
@@ -8757,6 +8826,14 @@
                         clicked = true;
                         let _r = await emuClick(param[1], eleIndex);
                         if (!_r) result = false;
+                    } else if (param[0] === "@dblclick") {
+                        clicked = true;
+                        let _r = await emuDblClick(param[1], eleIndex);
+                        if (!_r) result = false;
+                    } else if (param[0] === "@rclick") {
+                        clicked = true;
+                        let _r = await emuRClick(param[1], eleIndex);
+                        if (!_r) result = false;
                     } else if (param[1] === 'click' && param[0].indexOf('@') === 0) {
                         clicked = true;
                         let _r = await emuClick(param[0].substr(1), eleIndex);
@@ -9005,9 +9082,11 @@
 
                 if (searchData.prefConfig.shortcut && data.shortcut && !ele.dataset.clone && !ele.classList.contains("notmatch")) {
                     let shortcutCover = document.createElement("div");
-                    let shortcurStr = data.shortcut.replace('Key', '').toUpperCase();
-                    if (shortcurStr.length == 1) shortcutCover.innerText = shortcurStr;
-                    ele.appendChild(shortcutCover);
+                    let shortcurStr = data.shortcut.replace('Key', '').replace('Digit', '').toUpperCase();
+                    if (shortcurStr.length == 1) {
+                        shortcutCover.innerText = shortcurStr;
+                        ele.appendChild(shortcutCover);
+                    }
                     document.addEventListener('keydown', e => {
                         if (e.target.id === "searchJumperInput") return;
                         if (!self.hideTimeout) {
@@ -9173,11 +9252,9 @@
                         _str = customReplaceSingle(_str, "%ss", keywordsSC);
                         _str = customReplaceSingle(_str, "%st", keywordsTC);
                         _str = customReplaceSingle(_str, "%se", escape ? escape(keywordsR) : keywordsR);
-                        if (_str == str) {
-                            _str = customReplaceSingle(_str, "%s", keywordsR, v => {
-                                return (needDecode ? v : encodeURIComponent(v));
-                            });
-                        }
+                        _str = customReplaceSingle(_str, "%s", keywordsR, v => {
+                            return (needDecode ? v : encodeURIComponent(v));
+                        });
                         return _str;
                     };
                     let customVariable = str => {
@@ -9497,6 +9574,16 @@
                                 if (click) {
                                     postParams.push(['@click', click.replace(/\\([\=&])/g, "$1").trim()]);
                                 }
+                            } else if (pair.startsWith("dblclick(") && pair.endsWith(')')) {
+                                let click = pair.slice(9, pair.length - 1);
+                                if (click) {
+                                    postParams.push(['@dblclick', click.replace(/\\([\=&])/g, "$1").trim()]);
+                                }
+                            } else if (pair.startsWith("rclick(") && pair.endsWith(')')) {
+                                let click = pair.slice(7, pair.length - 1);
+                                if (click) {
+                                    postParams.push(['@rclick', click.replace(/\\([\=&])/g, "$1").trim()]);
+                                }
                             } else if (pair.startsWith("copy(") && pair.endsWith(')')) {
                                 let copy = pair.slice(5, pair.length - 1);
                                 if (copy) {
@@ -9562,7 +9649,7 @@
                 let clicked = false;
                 let alt, ctrl, meta, shift;
                 let action = async e => {
-                    if (e.stopPropagation) e.stopPropagation();
+                    if (e && e.stopPropagation) e.stopPropagation();
                     delete ele.href;
                     if (!e) e = {};
                     alt = e.altKey;
@@ -9605,6 +9692,7 @@
                                 _GM_setClipboard(tipsData);
                             }
                         }
+                        ele.dispatchEvent(new Event("actionOver"));
                         return;
                     }
                     clicked = false;
@@ -9635,6 +9723,58 @@
                         ele.click();
                     }
                 };
+                let addHistory = () => {
+                    let historyLength = Math.max(searchData.prefConfig.historyLength, 20);
+                    let isCurrent = ele.dataset.current;
+                    if (!data.hideNotMatch && !data.kwFilter && !ele.dataset.clone && !ele.dataset.paste && urlMatch !== '0' && historyLength && !isCurrent) {
+                        storage.getItem("historySites", data => {
+                            historySites = (data || []);
+                            historySites = historySites.filter(site => {return site && site != name});
+                            historySites.unshift(name);
+                            if (historySites.length > historyLength) {
+                                historySites = historySites.slice(0, historyLength);
+                            }
+                            storage.setItem("historySites", historySites);
+                            //self.initHistorySites();
+                        });
+                    }
+                    if (searchData.prefConfig.shiftLastUsedType && !isCurrent) {
+                        let parent = ele.parentNode;
+                        let dismissHistory = parent && (parent.classList.contains("search-jumper-targetAll") ||
+                                                        parent.classList.contains("search-jumper-targetImg") ||
+                                                        parent.classList.contains("search-jumper-targetAudio") ||
+                                                        parent.classList.contains("search-jumper-targetVideo") ||
+                                                        parent.classList.contains("search-jumper-targetLink") ||
+                                                        parent.classList.contains("search-jumper-targetPage") ||
+                                                        parent.classList.contains("search-jumper-needInPage"));
+                        if (!dismissHistory && historyType != ele.dataset.type) {
+                            historyType = ele.dataset.type;
+                            storage.setItem("historyType", historyType);
+                        }
+                    }
+                    if (searchData.prefConfig.sortType) {
+                        storage.getItem("sortTypeNames", data => {
+                            sortTypeNames = (data || {});
+                            if (!sortTypeNames[ele.dataset.type]) {
+                                sortTypeNames[ele.dataset.type] = 1;
+                            } else {
+                                sortTypeNames[ele.dataset.type] = sortTypeNames[ele.dataset.type] + 1;
+                            }
+                            storage.setItem("sortTypeNames", sortTypeNames);
+                        });
+                    }
+                    if (searchData.prefConfig.sortSite) {
+                        storage.getItem("sortSiteNames", data => {
+                            sortSiteNames = (data || {});
+                            if (!sortSiteNames[ele.dataset.name]) {
+                                sortSiteNames[ele.dataset.name] = 1;
+                            } else {
+                                sortSiteNames[ele.dataset.name] = sortSiteNames[ele.dataset.name] + 1;
+                            }
+                            storage.setItem("sortSiteNames", sortSiteNames);
+                        });
+                    }
+                };
                 let clickHandler = e => {
                     if (self.waitForShowTips) {
                         showTipsHandler(ele, 0);
@@ -9655,55 +9795,7 @@
                     if (!e) e = {};
                     let isPage = /^(https?|ftp):/.test(targetUrlData);
                     if (!self.batchOpening && !isBookmark) {
-                        let historyLength = Math.max(searchData.prefConfig.historyLength, 20);
-                        let isCurrent = ele.dataset.current;
-                        if (!data.hideNotMatch && !data.kwFilter && !showTips && !ele.dataset.clone && !ele.dataset.paste && urlMatch !== '0' && historyLength && !isCurrent) {
-                            storage.getItem("historySites", data => {
-                                historySites = (data || []);
-                                historySites = historySites.filter(site => {return site && site != name});
-                                historySites.unshift(name);
-                                if (historySites.length > historyLength) {
-                                    historySites = historySites.slice(0, historyLength);
-                                }
-                                storage.setItem("historySites", historySites);
-                                //self.initHistorySites();
-                            });
-                        }
-                        if (searchData.prefConfig.shiftLastUsedType && !isCurrent) {
-                            let parent = ele.parentNode;
-                            let dismissHistory = parent && (parent.classList.contains("search-jumper-targetAll") ||
-                                                            parent.classList.contains("search-jumper-targetImg") ||
-                                                            parent.classList.contains("search-jumper-targetAudio") ||
-                                                            parent.classList.contains("search-jumper-targetVideo") ||
-                                                            parent.classList.contains("search-jumper-targetLink") ||
-                                                            parent.classList.contains("search-jumper-targetPage"));
-                            if (!dismissHistory && historyType != ele.dataset.type) {
-                                historyType = ele.dataset.type;
-                                storage.setItem("historyType", historyType);
-                            }
-                        }
-                        if (searchData.prefConfig.sortType) {
-                            storage.getItem("sortTypeNames", data => {
-                                sortTypeNames = (data || {});
-                                if (!sortTypeNames[ele.dataset.type]) {
-                                    sortTypeNames[ele.dataset.type] = 1;
-                                } else {
-                                    sortTypeNames[ele.dataset.type] = sortTypeNames[ele.dataset.type] + 1;
-                                }
-                                storage.setItem("sortTypeNames", sortTypeNames);
-                            });
-                        }
-                        if (searchData.prefConfig.sortSite) {
-                            storage.getItem("sortSiteNames", data => {
-                                sortSiteNames = (data || {});
-                                if (!sortSiteNames[ele.dataset.name]) {
-                                    sortSiteNames[ele.dataset.name] = 1;
-                                } else {
-                                    sortSiteNames[ele.dataset.name] = sortSiteNames[ele.dataset.name] + 1;
-                                }
-                                storage.setItem("sortSiteNames", sortSiteNames);
-                            });
-                        }
+                        addHistory();
                     }
                     if (searchData.prefConfig.multiline == 1 || searchData.prefConfig.multiline == 2) {
                         if (inputString &&
@@ -9764,7 +9856,7 @@
                                     } else {
                                         self.searchJumperInPageInput.value = _url;
                                         self.submitInPageWords();
-                                        self.waitForHide(1);
+                                        self.waitForHide(0);
                                     }
                                 });
                             } else {
@@ -9773,7 +9865,7 @@
                                 } else {
                                     self.searchJumperInPageInput.value = findWords;
                                     self.submitInPageWords();
-                                    self.waitForHide(1);
+                                    self.waitForHide(0);
                                 }
                             }
                         }
@@ -9819,13 +9911,13 @@
                         }
                         return false;
                     } else if (/^paste:/.test(data.url)) {
-                        function triggerPaste(element, value) {
+                        async function triggerPaste(element, value) {
                             targetElement.focus();
                             if (typeof element.value !== "undefined") {
                                 const startPos = element.selectionStart;
                                 const endPos = element.selectionEnd;
                                 let newValue = element.value.substring(0, startPos) + value + element.value.substring(endPos, element.value.length);
-                                startInput(element, newValue);
+                                await startInput(element, newValue);
                                 element.selectionStart = startPos + value.length;
                                 element.selectionEnd = startPos + value.length;
                             } else {
@@ -9968,9 +10060,9 @@
                             }
                             let viewWidth = window.screen.availWidth || window.innerWidth || document.documentElement.clientWidth;
                             let viewHeight = window.screen.availHeight || window.innerHeight || document.documentElement.clientHeight;
-                            let showWidth = Math.min(viewWidth, 550);
-                            let showHeight = Math.min(viewHeight, 800);
-                            let left = viewWidth - showWidth;
+                            let showWidth = Math.min(viewWidth, 650);
+                            let showHeight = Math.max(viewHeight / 3 * 2, viewHeight - 250);
+                            let left = viewWidth - showWidth - 30;
                             let top = (viewHeight - showHeight) / 2;
                             window.open(targetUrlData + "#searchJumperMin" + (/#p{/.test(data.url) ? 'Post' : ''), "_blank", `width=${showWidth}, height=${showHeight}, location=0, resizable=1, status=0, toolbar=0, menubar=0, scrollbars=0, left=${left}, top=${top}`);
                         } else if (shift) {
@@ -10009,17 +10101,21 @@
                             }
                             if (tipsResult) {
                                 if (tipsResult != "null" && tipsResult != "No result") {
-                                    tipsResult = `<div style="font-size: initial; line-height: initial; font-weight: normal; pointer-events: all; padding: 5px;"><style>.search-jumper-tips{padding:0;}</style>${tipsResult}</div>`;
+                                    tipsResult = `<div style="font-size: initial; line-height: initial; font-weight: normal; padding: 5px;"><style>.search-jumper-tips{padding:0;}</style>${tipsResult}</div>`;
                                     tipsShowing = true;
                                 }
                                 //self.tips.style.transition = "none";
                                 self.tipsPos(target, tipsResult);
+                                addHistory();
+                                setTimeout(() => {
+                                    self.tips.style.pointerEvents = "all";
+                                }, 100);
                             }
                         } catch(e) {debug(e)}
                     }
                 };
                 let showTipsHandler = async (target, time = 1000) => {
-                    if (!target) return;
+                    if (!target || target.nodeType !== 1) return;
                     tipsData = null;
                     clearTimeout(self.requestShowTipsTimer);
                     self.waitForShowTips = false;
@@ -10036,6 +10132,13 @@
                         } else {
                             self.waitForShowTips = true;
                             self.requestShowTipsTimer = setTimeout(() => {
+                                if (url.indexOf('%input{') !== -1) {
+                                    self.showCustomInputWindow(url, _url => {
+                                        url = _url;
+                                        setTips(target, url);
+                                    });
+                                    return;
+                                }
                                 lastUrl = url;
                                 setTips(target, url);
                                 self.waitForShowTips = false;
@@ -10072,6 +10175,10 @@
                     self.clingPos(ele, self.tips);
                 }, false);
                 ele.addEventListener('showTips', e => {
+                    self.appendBar();
+                    self.closeOpenType();
+                    self.con.style.display = "";
+                    self.setFuncKeyCall(true);
                     showTipsHandler(targetElement, 0);
                 }, false);
                 ele.addEventListener('mouseleave', e => {
@@ -10080,7 +10187,25 @@
                         clearTimeout(self.requestShowTipsTimer);
                     }
                 }, false);
+                ele.addEventListener('drop', e => {
+                    self.searchBySiteName(name, e);
+                }, false);
+                ele.addEventListener('dragover', e => {
+                    e.preventDefault();
+                }, false);
                 return ele;
+            }
+
+            closeOpenType() {
+                let openType = this.bar.querySelector('.search-jumper-type.search-jumper-open>span');
+                if (openType) {
+                    if (openType.onmousedown) {
+                        openType.onmousedown();
+                    } else {
+                        let mouseEvent = new PointerEvent("mousedown");
+                        openType.dispatchEvent(mouseEvent);
+                    }
+                }
             }
 
             addToHighlightGroup(findWords, addToGroup) {
@@ -10135,8 +10260,8 @@
                         let calcJson = (json, template) => {
                             let finalData = data;
                             while (template) {
-                                let templateArr = template[1].split("|");
-                                let props = templateArr[0].split("."), value = json, arrayValue = null;
+                                let templateArr = template[1].replace(/\\\|/g, "【searchJumperJsonSplit】").split("|");
+                                let props = templateArr[0].replace(/【searchJumperJsonSplit】/g, "|").split("."), value = json, arrayValue = null;
                                 props.shift();
                                 props.forEach(prop => {
                                     if (arrayValue) {
@@ -10284,7 +10409,7 @@
                                                     resolve((r && r.data) || "");
                                                 });
                                             });
-                                        } else return "No result";;
+                                        } else return "No result";
                                     }
                                 } else {
                                     fetchData = GM_fetch(_url, fetchOption).then(r => {
@@ -10312,12 +10437,14 @@
                                         } else return "No result";
                                     }
                                 }
+                                let title;
                                 tipsResult = await fetchData.then(r => {
                                     if (!data) {
                                         return r;
                                     }
                                     let doc = document.implementation.createHTMLDocument('');
                                     doc.documentElement.innerHTML = createHTML(r);
+                                    title = doc.title;
                                     let finalData = data;
                                     while (template) {
                                         let value = "";
@@ -10362,11 +10489,14 @@
                                 if (!tipsResult) {
                                     tipsResult = "No result";
                                     failed = true;
+                                } else {
+                                    this.insertHistoryUrl(url, title);
                                 }
                                 tipsResult = [tipsResult, url];
                                 storeData = tipsResult;
                             }
                             if (!failed) {
+                                tipsResult = this.calcResult(tipsResult);
                                 tipsStorage.push({url: url, data: storeData, time: Date.now() / 1000 + cache});
                                 if (tipsStorage.length > 50) tipsStorage.shift();
                                 storage.setItem("tipsStorage", tipsStorage);
@@ -10374,9 +10504,69 @@
                         }
                     } else {
                         tipsResult = /\breturn\b/.test(data) ? await new AsyncFunction('fetch', 'storage', 'name', '"use strict";' + data)(GM_fetch, storage, name) : data;
+                        tipsResult = this.calcResult(tipsResult);
+                        if (targetElement && targetElement.href) {
+                            let newTitle = targetElement.title || targetElement.alt || targetElement.innerText;
+                            this.insertHistoryUrl(targetElement.href, newTitle);
+                        }
                     }
                 } catch(e) {debug(e)}
                 return tipsResult;
+            }
+
+            calcResult(result) {
+                let isString = typeof result === 'string';
+                let str = isString ? result : result[0];
+                const calcRegFull = /{([\d\.]+)(([\+\-*/][\d\.]+)+)}/;
+                const calcRegOperate = /([\+\-*/])([\d\.]+)/;
+                let needCalc = str.match(calcRegFull);
+                if (needCalc) {
+                    let calcArr = [];
+                    let fullMatch = needCalc[0];
+                    let value = parseFloat(needCalc[1]);
+                    let calcStr = needCalc[2];
+                    needCalc = calcStr.match(calcRegOperate);
+                    while (needCalc) {
+                        calcStr = calcStr.replace(needCalc[0], "");
+                        calcArr.push([needCalc[1], needCalc[2]]);
+                        needCalc = calcStr.match(calcRegOperate);
+                    }
+                    calcArr.forEach(calc => {
+                        let param = parseFloat(calc[1]);
+                        switch (calc[0]) {
+                            case "+":
+                                value += param;
+                                break;
+                            case "-":
+                                value -= param;
+                                break;
+                            case "*":
+                                value *= param;
+                                break;
+                            case "/":
+                                value /= param;
+                                break;
+                        }
+                    });
+                    value = value.toFixed(2);
+                    str = str.replace(fullMatch, value);
+                }
+                if (isString) {
+                    result = str;
+                } else {
+                    result[0] = str;
+                }
+                return result;
+            }
+
+            insertHistoryUrl(url, title) {
+                if (url.indexOf(location.host) === -1) return;
+                let curUrl = location.href;
+                let oldTitle = document.title;
+                _unsafeWindow.history.pushState('', title, url);
+                document.title = title;
+                _unsafeWindow.history.replaceState('', oldTitle, curUrl);
+                document.title = oldTitle;
             }
 
             checkScroll(noIntoView, noSmooth) {
@@ -10442,8 +10632,12 @@
                 else if (!selectStr && targetElement != getBody(document) && (targetElement.className != "searchJumper" || !/^MARK$/i.test(targetElement.nodeName))) {
                     let _targetElement = targetElement, children;
                     while (_targetElement && _targetElement.nodeName) {
-                        if (_targetElement.nodeName.toUpperCase() == 'IMG' || _targetElement.nodeName.toUpperCase() == 'AUDIO' || _targetElement.nodeName.toUpperCase() == 'VIDEO' || _targetElement.nodeName.toUpperCase() == 'A') break;
+                        if (/^(img|audio|video|a)$/i.test(_targetElement.nodeName)) break;
                         if (_targetElement.parentNode) {
+                            if (/^(img|audio|video|a)$/i.test(_targetElement.parentNode.nodeName)) {
+                                _targetElement = _targetElement.parentNode;
+                                break;
+                            }
                             children = _targetElement.parentNode.querySelectorAll("img,audio,video,a");
                             if (children && children.length === 1) {
                                 if (children[0].offsetHeight && _targetElement.offsetHeight / children[0].offsetHeight < 2) {
@@ -10482,6 +10676,7 @@
                 this.bar.classList.remove("initShow");
                 this.tips.style.opacity = 0;
                 this.tips.style.display = "none";
+                this.tips.style.transition = "none";
                 this.tips.innerHTML = createHTML("");
                 setTimeout(() => {this.bar.classList.add("initShow");}, 10);
                 let typeSel = "";
@@ -10561,15 +10756,7 @@
                     }
                 }
                 if (!_funcKeyCall && (searchData.prefConfig.disableAutoOpen || searchData.prefConfig.disableTypeOpen)) {
-                    let openType = this.bar.querySelector('.search-jumper-type.search-jumper-open>span');
-                    if (openType) {
-                        if (openType.onmousedown) {
-                            openType.onmousedown();
-                        } else {
-                            let mouseEvent = new PointerEvent("mousedown");
-                            openType.dispatchEvent(mouseEvent);
-                        }
-                    }
+                    this.closeOpenType();
                 }
                 self.setFuncKeyCall(_funcKeyCall);
                 if (_funcKeyCall) {
@@ -10615,7 +10802,7 @@
                                     saladbowl.style.transform = saladbowl.style.transform.replace(/\d+px\)/, `${e.clientY - 15}px)`);
                                 }
                             }, 100);
-                        }, 10);
+                        }, 1);
                     }, 1);
                 } else {
                     self.bar.style.display = "";
@@ -10637,10 +10824,18 @@
                     this.preList.style.visibility = "hidden";
                     this.listArrow.style.cssText = "";
                 }
-                relX = relX || searchData.prefConfig.position.x;
-                relY = relY || searchData.prefConfig.position.y;
-                posX = posX || searchData.prefConfig.offset.x;
-                posY = posY || searchData.prefConfig.offset.y;
+                if (typeof relX === 'undefined') {
+                    relX = searchData.prefConfig.position.x;
+                }
+                if (typeof relY === 'undefined') {
+                    relY = searchData.prefConfig.position.y;
+                }
+                if (typeof posX === 'undefined') {
+                    posX = searchData.prefConfig.offset.x;
+                }
+                if (typeof posY === 'undefined') {
+                    posY = searchData.prefConfig.offset.y;
+                }
                 let self = this;
                 let setClass = className => {
                     self.bar.style.cssText = "";
@@ -10681,7 +10876,6 @@
                         let leftRight = self.con.classList.contains("search-jumper-left") ||
                             self.con.classList.contains("search-jumper-right");
                         searchTypes.forEach(ele => {
-                            let scrollSize = Math.max(ele.scrollWidth, ele.scrollHeight) + "px";
                             if (!ele.classList.contains("search-jumper-open")) {
                                 if (leftRight) {
                                     ele.style.width = "";
@@ -10691,30 +10885,24 @@
                                     ele.style.height = "";
                                 }
                             } else {
-                                if (leftRight) {
-                                    ele.style.width = "";
-                                    ele.style.height = scrollSize;
-                                } else {
-                                    ele.style.width = scrollSize;
-                                    ele.style.height = "";
+                                let scrollSize = Math.max(ele.scrollWidth, ele.scrollHeight);
+                                if (scrollSize) {
+                                    scrollSize += "px";
+                                    if (leftRight) {
+                                        ele.style.width = "";
+                                        ele.style.height = scrollSize;
+                                    } else {
+                                        ele.style.width = scrollSize;
+                                        ele.style.height = "";
+                                    }
                                 }
                             }
                         });
                     }, 1);
                 };
-                let viewWidth = window.innerWidth || document.documentElement.clientWidth;
-                let viewHeight = window.innerHeight || document.documentElement.clientHeight;
-                var maxSize = Math.max(self.bar.scrollWidth, self.bar.scrollHeight);
 
-                if (posX > viewWidth - maxSize) {
-                    posX = viewWidth - maxSize;
-                }
                 if (posX < 0) {
                     posX = 0;
-                }
-
-                if (posY > viewHeight - maxSize) {
-                    posY = viewHeight - maxSize;
                 }
                 if (posY < 0) {
                     posY = 0;
@@ -11292,11 +11480,11 @@
             geneSelector(ele, id) {
                 let selector = ele.nodeName.toLowerCase();
                 if (selector !== "html" && selector !== "body") {
-                    if (id && ele.id && /^[\w\-_]+$/.test(ele.id)) selector = '#' + ele.id;
+                    if (id && ele.id && /^[a-z\-_][\w\-_]+$/i.test(ele.id)) selector = '#' + ele.id;
                     else {
                         if (ele.className) {
                             let classLen = ele.classList.length;
-                            selector += [].map.call(ele.classList, d => /^[\w]+$/.test(d) || (classLen < 3 && /^[\w\-_]+$/.test(d)) ? ('.' + d) : "").join('');
+                            selector += [].map.call(ele.classList, d => /^[a-z][\w]+$/i.test(d) || (classLen < 3 && /^[a-z\-_][\w\-_]+$/i.test(d)) ? ('.' + d) : "").join('');
                         }
                         let parent = ele.parentElement;
                         if (parent) {
@@ -11563,11 +11751,19 @@
         }
 
         let reachLast = false;
-        function startInput(input, v) {
+        async function startInput(input, v) {
             if (!input) return true;
             targetElement = input;
-            let event = new Event('focus', { bubbles: true });
+            let event = new FocusEvent('focusin', { bubbles: true });
             input.dispatchEvent(event);
+            event = new Event('focus', { bubbles: true });
+            input.dispatchEvent(event);
+            const selection = window.getSelection();
+            const range = selection.rangeCount ? selection.getRangeAt(0) : new Range();
+            range.selectNode(input);
+            selection.removeAllRanges();
+            selection.addRange(range);
+            await sleep(1);
             input.type !== 'file' && input.click && input.click();
             let lastValue = input.value;
             if (input.type == 'file') {
@@ -11593,24 +11789,34 @@
             } else if (input.nodeName.toUpperCase() == "TEXTAREA") {
                 var nativeTextareaValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value").set;
                 nativeTextareaValueSetter.call(input, v);
-            } else if (input.contentEditable == 'true') {
-                input.innerHTML = createHTML(v);
             } else {
-                let file = v;
-                if (file.indexOf('data:') == 0) {
-                    file = dataURLtoFile(file);
-                } else {
-                    let blob = new Blob([file], {
-                        type: 'text/plain'
-                    });
-                    file = new File([blob], 'noname.txt', { type: blob.type })
+                let contentEditableParent = input;
+                while (contentEditableParent && contentEditableParent.contentEditable !== 'true') {
+                    contentEditableParent = contentEditableParent.parentNode;
                 }
-                var pasteEvent = new ClipboardEvent('paste', {
-                    target: document.body,
-                    clipboardData: new DataTransfer()
-                });
-                pasteEvent.clipboardData.items.add(file);
-                input.dispatchEvent(pasteEvent);
+                if (contentEditableParent) {
+                    contentEditableParent.dispatchEvent(new InputEvent('beforeinput', {inputType: "insertText", data: v}));
+                    await sleep(1);
+                    if (input.innerText !== v) {
+                        input.innerHTML = createHTML(v);
+                    }
+                } else {
+                    let file = v;
+                    if (file.indexOf('data:') == 0) {
+                        file = dataURLtoFile(file);
+                    } else {
+                        let blob = new Blob([file], {
+                            type: 'text/plain'
+                        });
+                        file = new File([blob], 'noname.txt', { type: blob.type })
+                    }
+                    var pasteEvent = new ClipboardEvent('paste', {
+                        target: document.body,
+                        clipboardData: new DataTransfer()
+                    });
+                    pasteEvent.clipboardData.items.add(file);
+                    input.dispatchEvent(pasteEvent);
+                }
             }
             event = new Event('input', { bubbles: true });
             let tracker = input._valueTracker;
@@ -11653,7 +11859,7 @@
         async function emuInput(sel, v, eleIndex = -1) {
             let input = await returnElement(sel, eleIndex);
             if (input === true) return true;
-            startInput(input, v);
+            await startInput(input, v);
             return reachLast;
         }
 
@@ -11748,6 +11954,117 @@
             dispatchTouchEvent(btn, "touchend");
             btn.click();
             debug(btn, `click ${sel}`);
+            return reachLast;
+        }
+
+        async function emuDblClick(sel, eleIndex = -1) {
+            let btn = await returnElement(sel, eleIndex);
+            if (btn === true) return true;
+            targetElement = btn;
+            let eventParam = {
+                isTrusted: true,
+                altKey: false,
+                azimuthAngle: 0,
+                bubbles: true,
+                button: 0,
+                buttons: 0,
+                clientX: 1,
+                clientY: 1,
+                cancelBubble: false,
+                cancelable: true,
+                composed: true,
+                ctrlKey: false,
+                defaultPrevented: false,
+                detail: 2,
+                eventPhase: 2,
+                fromElement: null,
+                height: 1,
+                isPrimary: false,
+                metaKey: false,
+                pointerId: 1,
+                pointerType: "mouse",
+                pressure: 0,
+                relatedTarget: null,
+                returnValue: true,
+                shiftKey: false,
+                toElement: null,
+                twist: 0,
+                which: 1
+            };
+            btn.focus();
+            var mouseEvent = new PointerEvent("mouseover",eventParam);
+            btn.dispatchEvent(mouseEvent);
+            mouseEvent = new PointerEvent("pointerover",eventParam);
+            btn.dispatchEvent(mouseEvent);
+            mouseEvent = new PointerEvent("mousedown",eventParam);
+            btn.dispatchEvent(mouseEvent);
+            mouseEvent = new PointerEvent("pointerdown",eventParam);
+            btn.dispatchEvent(mouseEvent);
+            mouseEvent = new PointerEvent("mouseup",eventParam);
+            btn.dispatchEvent(mouseEvent);
+            mouseEvent = new PointerEvent("pointerup",eventParam);
+            btn.dispatchEvent(mouseEvent);
+            btn.click();
+            btn.click();
+            mouseEvent = new MouseEvent("dblclick", {
+                ...eventParam,
+                view: _unsafeWindow
+            });
+            btn.dispatchEvent(mouseEvent);
+            debug(btn, `dblclick ${sel}`);
+            return reachLast;
+        }
+
+        async function emuRClick(sel, eleIndex = -1) {
+            let btn = await returnElement(sel, eleIndex);
+            if (btn === true) return true;
+            targetElement = btn;
+            let eventParam = {
+                isTrusted: true,
+                altKey: false,
+                azimuthAngle: 0,
+                bubbles: true,
+                button: 2,
+                buttons: 0,
+                clientX: 1,
+                clientY: 1,
+                cancelBubble: false,
+                cancelable: true,
+                composed: true,
+                ctrlKey: false,
+                defaultPrevented: false,
+                detail: 0,
+                eventPhase: 2,
+                fromElement: null,
+                height: 1,
+                isPrimary: false,
+                metaKey: false,
+                pointerId: 1,
+                pointerType: "mouse",
+                pressure: 0,
+                relatedTarget: null,
+                returnValue: true,
+                shiftKey: false,
+                toElement: null,
+                twist: 0,
+                which: 3
+            };
+            btn.focus();
+            var mouseEvent = new PointerEvent("mouseover",eventParam);
+            btn.dispatchEvent(mouseEvent);
+            mouseEvent = new PointerEvent("pointerover",eventParam);
+            btn.dispatchEvent(mouseEvent);
+            mouseEvent = new PointerEvent("mousedown",eventParam);
+            btn.dispatchEvent(mouseEvent);
+            mouseEvent = new PointerEvent("pointerdown",eventParam);
+            btn.dispatchEvent(mouseEvent);
+            mouseEvent = new PointerEvent("mouseup",eventParam);
+            btn.dispatchEvent(mouseEvent);
+            mouseEvent = new PointerEvent("pointerup",eventParam);
+            btn.dispatchEvent(mouseEvent);
+            mouseEvent = new PointerEvent("contextmenu",eventParam);
+            btn.dispatchEvent(mouseEvent);
+            debug(btn, `rclick ${sel}`);
             return reachLast;
         }
 
@@ -11928,6 +12245,7 @@
             if (searchData.prefConfig.cacheSwitch && !isAllPage) {
                 searchBar.con.classList.add("in-input");
                 searchBar.con.style.visibility = "hidden";
+                searchBar.con.style.display = "";
                 searchBar.appendBar();
                 let needCache = cacheFontPool.length > 0;
                 while (cacheFontPool.length > 0) {
@@ -12224,15 +12542,7 @@
                     }
                 }
                 logoSvg.style.cursor = "";
-                let firstType = searchBar.bar.querySelector('.search-jumper-type.search-jumper-open>span');
-                if (firstType) {
-                    if (firstType.onmousedown) {
-                        firstType.onmousedown();
-                    } else {
-                        let mouseEvent = new PointerEvent("mousedown");
-                        firstType.dispatchEvent(mouseEvent);
-                    }
-                }
+                searchBar.closeOpenType();
                 searchBar.initPos(relX, relY, posX, posY);
                 storage.setItem("searchData", searchData);
             };
@@ -12315,9 +12625,13 @@
                 }, 100);
                 hideTimer = setTimeout(() => {
                     searchBar.bar.style.display = 'none';
+                    if (searchData.prefConfig.resizePage) {
+                        if (typeof searchBar.initBodyStyle != "undefined") getBody(document).style.cssText = searchBar.initBodyStyle;
+                        searchBar.con.classList.remove("resizePage");
+                    }
                     document.removeEventListener('touchend', mouseUpHandler, false);
                     document.removeEventListener('touchmove', mouseMoveHandler, false);
-                }, 2000);
+                }, 1500);
             }, { passive: false, capture: false });
 
             searchBar.bar.addEventListener(getSupportWheelEventName(), e => {
@@ -12356,10 +12670,11 @@
                 searchBar.con.scrollLeft += deltaY;
             }, { passive: false, capture: false });
 
-            if (searchData.prefConfig.switchSitesPreKey ||
-                searchData.prefConfig.switchSitesNextKey ||
-                searchData.prefConfig.shortcutKey ||
-                searchData.prefConfig.showAllShortcutKey) {
+            if (searchData.prefConfig.shortcut &&
+                (searchData.prefConfig.switchSitesPreKey ||
+                 searchData.prefConfig.switchSitesNextKey ||
+                 searchData.prefConfig.shortcutKey ||
+                 searchData.prefConfig.showAllShortcutKey)) {
                 let inputing = -1, key = false;
                 let checkShortcutEnable = (e, _alt, _ctrl, _shift, _meta, _key) => {
                     if ((_alt && !e.altKey) ||
@@ -12481,7 +12796,7 @@
                             setTimeout(() => {
                                 if (getSelectStr()) {
                                     searchBar.showInPage(true, e);
-                                } else searchBar.waitForHide(1);
+                                } else searchBar.waitForHide(0);
                             }, 0);
                         }
                         return;
@@ -12505,7 +12820,7 @@
                     }
                     if (!searchData.prefConfig.selectToShow) {
                         if ((e.button === 0 && !searchData.prefConfig.leftMouse) || (e.button === 1 && !searchData.prefConfig.middleMouse)) {
-                            searchBar.waitForHide(1);
+                            searchBar.waitForHide(0);
                             return;
                         }
                     }
@@ -12541,7 +12856,7 @@
                                     searchBar.showInPage(true, e);
                                 } else {
                                     waitForMouse = false;
-                                    searchBar.waitForHide(1);
+                                    searchBar.waitForHide(0);
                                 }
                             }, 0);
                         }
@@ -12664,10 +12979,11 @@
                         return;
                     }
                     targetElement = e.target;
+                    if (targetElement.nodeType !== 1) targetElement = targetElement.parentNode;
                     if (targetElement.shadowRoot) return;
                     if (targetElement.getAttribute && targetElement.getAttribute("draggable") == "true") return;
                     if (targetElement.parentNode && targetElement.parentNode.getAttribute && targetElement.parentNode.getAttribute("draggable") == "true") return;
-                    searchBar.waitForHide(1);
+                    searchBar.waitForHide(0);
                     setTimeout(() => {
                         showDragSearch(e.clientX, e.clientY);
                     }, 2);
@@ -13021,6 +13337,9 @@
 
         async function initConfig() {
             isInConfigPage = await checkConfigPage();
+            if (!isInConfigPage && searchData.webdavConfig) {
+                webDAV = new WebDAV(searchData.webdavConfig.host + "/SearchJumper" + (searchData.webdavConfig.path || "").replace(/^\/*/, "/").replace(/\/*$/, "/"), searchData.webdavConfig.username, searchData.webdavConfig.password);
+            }
             if (isInConfigPage && !isAllPage) {
                 let sendMessageTimer, received = false;
                 let loadConfig = () => {
@@ -13035,10 +13354,15 @@
                         command: 'loadConfig'
                     }, '*');
                 }
+                let delayTimeout = setTimeout(() => {
+                    if (received) return;
+                    location.reload();
+                }, 3000);
 
                 document.addEventListener('received', e => {
                     received = true;
                     clearTimeout(sendMessageTimer);
+                    clearTimeout(delayTimeout);
                     if (cachePool.length > 0 && searchData.prefConfig.cacheSwitch) {
                         debug(`Start cache ${cachePool.length} icons!`);
                         cacheImgManager();
@@ -13571,7 +13895,7 @@
                                         typeData.sites.push(curData);
                                     } else {
                                         let typeIndex = self.searchType(otherType.value);
-                                        searchData.sitesConfig[typeIndex].sites.push(curData);;
+                                        searchData.sitesConfig[typeIndex].sites.push(curData);
                                     }
                                 }
                             });
@@ -14043,11 +14367,11 @@
                         searchBar.setFuncKeyCall(false);
                         searchBar.showInPage();
                     } else if (dragSector) {
+                        removeFrame();
                         searchBar.searchBySiteName(dragSector.children[0].dataset.name, e);
                         dragSector.style.transform = `rotate(${dragSector.dataset.deg}deg)`;
                         dragSector.classList.remove("over");
                         dragSector = null;
-                        removeFrame();
                     }
                     e.preventDefault();
                 });
@@ -14072,7 +14396,7 @@
                 let result = null;
                 for (let i = targetIndex; i < siteBtns.length; i++) {
                     let btn = siteBtns[i];
-                    if (btn.style.display !== 'none' && !btn.dataset.showTips) {
+                    if (btn.style.display !== 'none') {
                         result = btn;
                         targetIndex = i + 1;
                         break;
@@ -14122,6 +14446,25 @@
                 filldragSpan(span, targetSite);
             });
             let findIndex = 0;
+
+            let historySiteBtns;
+            if (firstType.classList.contains("search-jumper-needInPage")) {
+                historySiteBtns = searchBar.txtHistorySiteBtns;
+            } else if (firstType.classList.contains("search-jumper-targetImg")) {
+                historySiteBtns = searchBar.imgHistorySiteBtns;
+            } else if (firstType.classList.contains("search-jumper-targetAudio")) {
+                historySiteBtns = searchBar.audioHistorySiteBtns;
+            } else if (firstType.classList.contains("search-jumper-targetVideo")) {
+                historySiteBtns = searchBar.videoHistorySiteBtns;
+            } else if (firstType.classList.contains("search-jumper-targetLink") || firstType.classList.contains("search-jumper-targetPage")) {
+                historySiteBtns = searchBar.linkHistorySiteBtns;
+            }
+            if (historySiteBtns) {
+                historySiteBtns = historySiteBtns.concat(searchBar.historySiteBtns);
+                historySiteBtns = historySiteBtns.filter((value, index, self) => self.indexOf(value) === index);
+            } else {
+                historySiteBtns = searchBar.historySiteBtns;
+            }
             let getHistorySiteBtn = () => {
                 if (searchData.prefConfig.reuseDragHistory) {
                     return getTargetSiteBtn();
@@ -14129,8 +14472,8 @@
                     return false;
                 }
                 let result = null;
-                for (let i = findIndex; i < searchBar.historySiteBtns.length; i++) {
-                    let btn = searchBar.historySiteBtns[i];
+                for (let i = findIndex; i < historySiteBtns.length; i++) {
+                    let btn = historySiteBtns[i];
                     if (btn.style.display !== 'none') {
                         result = btn;
                         findIndex = i + 1;
@@ -14178,6 +14521,10 @@
 
         var addFrame, nameInput, descInput, urlInput, iconInput, iconShow, iconsCon, typeSelect, testBtn, cancelBtn, addBtn, siteKeywords, siteMatch, openSelect, crawlBtn;
         function showSiteAdd(name, description, url, icons, charset, kwFilter, match, hideNotMatch) {
+            self.kwFilter = kwFilter;
+            self.charset = charset;
+            self.hideNotMatch = hideNotMatch;
+            self.match = match;
             if (!addFrame) {
                 let addFrameCssText = `
                     .searchJumperFrame-body,
@@ -14606,6 +14953,16 @@
                                 if (click) {
                                     postParams.push(['@click', click.replace(/\\([\=&])/g, "$1").trim()]);
                                 }
+                            } else if (pair.startsWith("dblclick(") && pair.endsWith(')')) {
+                                let click = pair.slice(9, pair.length - 1);
+                                if (click) {
+                                    postParams.push(['@dblclick', click.replace(/\\([\=&])/g, "$1").trim()]);
+                                }
+                            } else if (pair.startsWith("rclick(") && pair.endsWith(')')) {
+                                let click = pair.slice(7, pair.length - 1);
+                                if (click) {
+                                    postParams.push(['@rclick', click.replace(/\\([\=&])/g, "$1").trim()]);
+                                }
                             } else if (pair.startsWith("copy(") && pair.endsWith(')')) {
                                 let copy = pair.slice(5, pair.length - 1);
                                 if (copy) {
@@ -14696,17 +15053,17 @@
                             if (openSelect.value && openSelect.value != '-1') {
                                 siteObj.openInNewTab = openSelect.value === 'true';
                             }
-                            if (charset && charset.toLowerCase() != 'utf-8') {
-                                siteObj.charset = charset;
+                            if (self.charset && charset.toLowerCase() != 'utf-8') {
+                                siteObj.charset = self.charset;
                             }
-                            if (kwFilter) {
-                                siteObj.kwFilter = kwFilter;
+                            if (self.kwFilter) {
+                                siteObj.kwFilter = self.kwFilter;
                             }
-                            if (match) {
-                                siteObj.match = match;
+                            if (self.match) {
+                                siteObj.match = self.match;
                             }
-                            if (hideNotMatch) {
-                                siteObj.hideNotMatch = hideNotMatch;
+                            if (self.hideNotMatch) {
+                                siteObj.hideNotMatch = self.hideNotMatch;
                             }
                         }
                         searchData.sitesConfig[typeSelect.value].sites.push(siteObj);
@@ -14746,6 +15103,12 @@
                             break;
                         case "click":
                             words = i18n('clickOutput', sel);
+                            break;
+                        case "dblclick":
+                            words = i18n('dblclickOutput', sel);
+                            break;
+                        case "rclick":
+                            words = i18n('rclickOutput', sel);
                             break;
                         case "copy":
                             words = i18n('copyOutput', sel);
@@ -14840,6 +15203,16 @@
                             if (click) {
                                 addAction('click', click.replace(/\\([\=&])/g, "$1").trim());
                             }
+                        } else if (pair.startsWith("dblclick(") && pair.endsWith(')')) {
+                            let click = pair.slice(9, pair.length - 1);
+                            if (click) {
+                                addAction('dblclick', click.replace(/\\([\=&])/g, "$1").trim());
+                            }
+                        } else if (pair.startsWith("rclick(") && pair.endsWith(')')) {
+                            let click = pair.slice(7, pair.length - 1);
+                            if (click) {
+                                addAction('rclick', click.replace(/\\([\=&])/g, "$1").trim());
+                            }
                         } else if (pair.startsWith("copy(") && pair.endsWith(')')) {
                             let copy = pair.slice(5, pair.length - 1);
                             if (copy) {
@@ -14889,6 +15262,12 @@
                             case "click":
                                 actions.push(`click(${sel.replace(/([=&])/g, '\\$1')})`);
                                 break;
+                            case "dblclick":
+                                actions.push(`dblclick(${sel.replace(/([=&])/g, '\\$1')})`);
+                                break;
+                            case "rclick":
+                                actions.push(`rclick(${sel.replace(/([=&])/g, '\\$1')})`);
+                                break;
                             case "copy":
                                 actions.push(`copy(${sel.replace(/([=&])/g, '\\$1')})`);
                                 break;
@@ -14916,12 +15295,33 @@
                     addFrame.classList.remove("crawling");
                 });
                 let targetInput;
+                let clickTimer;
                 let clickSthHandler = e => {
                     if (addFrame.style.display === '') return;
                     if (/INPUT|TEXTAREA|SELECT|OPTION/i.test(e.target.nodeName)) {
                         return;
                     }
-                    addAction('click', picker.geneSelector(e.target, true));
+                    clearTimeout(clickTimer);
+                    clickTimer = setTimeout(() => {
+                        addAction('click', picker.geneSelector(e.target, true));
+                    }, 300);
+                };
+                let dblclickSthHandler = e => {
+                    if (addFrame.style.display === '') return;
+                    if (/INPUT|TEXTAREA|SELECT|OPTION/i.test(e.target.nodeName)) {
+                        return;
+                    }
+                    clearTimeout(clickTimer);
+                    addAction('dblclick', picker.geneSelector(e.target, true));
+                };
+                let rclickSthHandler = e => {
+                    if (addFrame.style.display === '') return;
+                    if (/INPUT|TEXTAREA|SELECT|OPTION/i.test(e.target.nodeName)) {
+                        return;
+                    }
+                    e.preventDefault();
+                    clearTimeout(clickTimer);
+                    addAction('rclick', picker.geneSelector(e.target, true));
                 };
                 let changeHandler = e => {
                     if (addFrame.style.display === '') return;
@@ -14929,19 +15329,22 @@
                 };
                 let keydownHandler = e => {
                     if (addFrame.style.display === '') return;
+                    let quit = false;
                     if (e.keyCode == 27) {
-                        addFrame.style.display = '';
-                        document.removeEventListener('keydown', keydownHandler, true);
-                        document.removeEventListener('click', clickSthHandler);
-                        document.removeEventListener('change', changeHandler);
+                        quit = true;
                     } else if (e.keyCode == 13) {
                         //enter
                         e.preventDefault();
                         e.stopPropagation();
                         e.target && e.target.blur && e.target.blur();
+                        quit = true;
+                    }
+                    if (quit) {
                         addFrame.style.display = '';
                         document.removeEventListener('keydown', keydownHandler, true);
                         document.removeEventListener('click', clickSthHandler);
+                        document.removeEventListener('dblclick', dblclickSthHandler);
+                        document.removeEventListener('contextmenu', rclickSthHandler);
                         document.removeEventListener('change', changeHandler);
                     }
                 };
@@ -14951,6 +15354,8 @@
                     setTimeout(() => {
                         document.addEventListener('keydown', keydownHandler, true);
                         document.addEventListener('click', clickSthHandler);
+                        document.addEventListener('dblclick', dblclickSthHandler);
+                        document.addEventListener('contextmenu', rclickSthHandler);
                         document.addEventListener('change', changeHandler);
                     }, 100);
                 });
@@ -14981,12 +15386,35 @@
                     }, !inLoop);
                     addFrame.style.display = 'none';
                 });
-                clickAction.addEventListener("click", e => {
+                clickAction.addEventListener("dblclick", e => {
+                    clearTimeout(clickTimer);
+                    e.preventDefault();
+                    e.stopPropagation();
                     picker.getSelector(selector => {
-                        addAction('click', selector);
+                        addAction('dblclick', selector);
                         addFrame.style.display = '';
                     }, !inLoop);
                     addFrame.style.display = 'none';
+                });
+                clickAction.addEventListener("contextmenu", e => {
+                    clearTimeout(clickTimer);
+                    e.preventDefault();
+                    e.stopPropagation();
+                    picker.getSelector(selector => {
+                        addAction('rclick', selector);
+                        addFrame.style.display = '';
+                    }, !inLoop);
+                    addFrame.style.display = 'none';
+                });
+                clickAction.addEventListener("click", e => {
+                    clearTimeout(clickTimer);
+                    clickTimer = setTimeout(() => {
+                        picker.getSelector(selector => {
+                            addAction('click', selector);
+                            addFrame.style.display = '';
+                        }, !inLoop);
+                        addFrame.style.display = 'none';
+                    }, 250);
                 });
                 sleepAction.addEventListener("click", e => {
                     let sleepTime = prompt(i18n('sleepPrompt'), 1000);
@@ -15489,14 +15917,14 @@
                 searchData.prefConfig.disableTypeOpen = false;
             }
             if (ext) {
-                configPage = chrome.runtime.getURL('config/index.html');;
+                configPage = chrome.runtime.getURL('config/index.html');
+                if (!searchData.prefConfig.configPage) {
+                    searchData.prefConfig.configPage = configPage;
+                }
             } else if (searchData.prefConfig.configPage) {
                 configPage = searchData.prefConfig.configPage;
             } else {
                 searchData.prefConfig.configPage = configPage;
-            }
-            if (searchData.webdavConfig) {
-                webDAV = new WebDAV(searchData.webdavConfig.host + "/SearchJumper" + (searchData.webdavConfig.path || "").replace(/^\/*/, "/").replace(/\/*$/, "/"), searchData.webdavConfig.username, searchData.webdavConfig.password);
             }
         }
 
